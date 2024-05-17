@@ -37,7 +37,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,enable=true,prefix=py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}-,suffix=,format=short
+            type=sha,enable=true,prefix=py${{ env.PYTHON_VERSION }}-node${{ env.NODE_VERSION }}-,suffix=,format=short
       - uses: docker/build-push-action@v5
         id: push
         with:
@@ -52,10 +52,14 @@ jobs:
         id: set-output
         run: |
           echo "image_uri=${{ fromJSON(steps.meta.outputs.json).tags[0] }}" >> "$GITHUB_OUTPUT"
-          echo "image_final_uri=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}" >> "$GITHUB_OUTPUT"
+          PYTHON_VERSION=$(docker run --rm ${{ steps.set-output.outputs.image_uri }} python --version 2>&1 | awk '{print $2}')
+          echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          NODE_VERSION=$(docker run --rm ${{ steps.set-output.outputs.image_uri }} node --version 2>&1 | awk -F 'v' '{print $2}')
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
     outputs:
       image_uri: ${{ steps.set-output.outputs.image_uri }}
-      image_final_uri: ${{ steps.set-output.outputs.image_final_uri }}
+      python_version: ${{ steps.set-output.outputs.python_version }}
+      node_version: ${{ steps.set-output.outputs.node_version }}
 
   test-action:
     needs: build-and-push
@@ -80,8 +84,25 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - id: extract-versions
+        run: |
+          PYTHON_MAJOR_MINOR=$(echo ${{ needs.build-and-push.outputs.python_version }} | awk -F. '{print $1"."$2}')
+          NODE_MAJOR_MINOR=$(echo ${{ needs.build-and-push.outputs.node_version }} | awk -F. '{print $1"."$2}')
+          echo "python_major_minor=$PYTHON_MAJOR_MINOR" >> $GITHUB_OUTPUT
+          echo "node_major_minor=$NODE_MAJOR_MINOR" >> $GITHUB_OUTPUT
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=py${{ needs.build-and-push.outputs.python_version }}-node${{ needs.build-and-push.outputs.node_version }}
+            type=raw,value=py${{ steps.extract-versions.outputs.python_major_minor }}-node${{ steps.extract-versions.outputs.node_major_minor }}
       - name: Tag image as latest
         run: |
           docker pull ${{ needs.build-and-push.outputs.image_uri }}
-          docker tag ${{ needs.build-and-push.outputs.image_uri }} ${{ needs.build-and-push.outputs.image_final_uri }}
-          docker push ${{ needs.build-and-push.outputs.image_final_uri }}
+
+          IFS=',' read -r -a TAGS <<< "${{ steps.meta.outputs.tags }}"
+          for TAG in "${TAGS[@]}"; do
+            docker tag ${{ needs.build-and-push.outputs.image_uri }} $TAG
+            docker push $TAG
+          done
