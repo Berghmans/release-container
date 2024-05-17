@@ -111,9 +111,7 @@ jobs:
       - name: Tag image as latest
         run: |
           docker pull ${{ needs.build-and-push.outputs.image_uri }}
-
-          IFS=',' read -r -a TAGS <<< "${{ steps.meta.outputs.tags }}"
-          for TAG in "${TAGS[@]}"; do
+          echo "${{ steps.meta.outputs.tags }}" | while read -r TAG; do
             docker tag ${{ needs.build-and-push.outputs.image_uri }} $TAG
             docker push $TAG
           done
