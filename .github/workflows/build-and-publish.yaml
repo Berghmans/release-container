@@ -108,6 +108,8 @@ jobs:
           tags: |
             type=raw,value=py${{ steps.extract-versions.outputs.python_version }}-node${{ steps.extract-versions.outputs.node_version }}
             type=raw,value=py${{ steps.extract-versions.outputs.python_major_minor }}-node${{ steps.extract-versions.outputs.node_major_minor }}
+            type=raw,value=py${{ steps.extract-versions.outputs.python_version }}
+            type=raw,value=py${{ steps.extract-versions.outputs.python_major_minor }}
       - name: Tag image as latest
         run: |
           docker pull ${{ needs.build-and-push.outputs.image_uri }}
