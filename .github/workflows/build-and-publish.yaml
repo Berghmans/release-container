@@ -32,6 +32,7 @@ jobs:
         id: vars
         run: |
           echo "IMAGE_NAME=$(echo ${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "TIMESTAMP=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
       - id: meta
         uses: docker/metadata-action@v5
         with:
@@ -48,6 +49,8 @@ jobs:
           build-args: |
             PYTHON_VERSION=${{ env.PYTHON_VERSION }}
             NODE_VERSION=${{ env.NODE_VERSION }}
+        env:
+          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
       - name: Gather output
         id: set-output
         run: |
