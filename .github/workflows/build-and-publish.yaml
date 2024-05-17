@@ -1,0 +1,75 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: ${{ github.repository_owner }}/release-container
+  PYTHON_VERSION: "3.12.3"
+  NODE_VERSION: "20.x"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get short commit hash
+        id: vars
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}-${{ env.SHORT_SHA }}
+          build-args: |
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+            NODE_VERSION=${{ env.NODE_VERSION }}
+      - name: Test Docker image
+        run: |
+          docker run --rm ghcr.io/${{ env.IMAGE_NAME }}:latest python --version
+          docker run --rm ghcr.io/${{ env.IMAGE_NAME }}:latest node --version
+
+  test-action:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}-${{ env.SHORT_SHA }}
+    steps:
+      - run: python --version
+      - run: node --version
+      - uses: actions/checkout@v2
+      # - name: Run application-specific GitHub Action test, e.g. a semantic-release dry-run
+
+  tag-as-latest:
+    needs: test-action
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag image as latest
+        run: |
+          docker pull ghcr.io/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}-${{ env.SHORT_SHA }}
+          docker tag ghcr.io/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}-${{ env.SHORT_SHA }} ghcr.io/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}
+          docker push ghcr.io/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}
