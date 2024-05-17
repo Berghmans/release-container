@@ -52,7 +52,7 @@ jobs:
         id: set-output
         run: |
           echo "image_uri=${{ fromJSON(steps.meta.outputs.json).tags[0] }}" >> "$GITHUB_OUTPUT"
-          echo "image_final_uri=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:" >> "$GITHUB_OUTPUT"
+          echo "image_final_uri=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}" >> "$GITHUB_OUTPUT"
     outputs:
       image_uri: ${{ steps.set-output.outputs.image_uri }}
       image_final_uri: ${{ steps.set-output.outputs.image_final_uri }}
