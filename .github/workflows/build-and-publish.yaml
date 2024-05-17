@@ -48,27 +48,22 @@ jobs:
           build-args: |
             PYTHON_VERSION=${{ env.PYTHON_VERSION }}
             NODE_VERSION=${{ env.NODE_VERSION }}
-      # - uses: actions/attest-build-provenance@v1
-      #   with:
-      #     subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      #     subject-digest: ${{ steps.push.outputs.digest }}
-      #     push-to-registry: true
       - name: Gather output
         id: set-output
         run: echo "image_uri=${{ fromJSON(steps.meta.outputs.json).tags[0] }}" >> "$GITHUB_OUTPUT"
     outputs:
       image_uri: ${{ steps.set-output.outputs.image_uri }}
 
-  # test-action:
-  #   needs: build-and-test
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:py${{ env.PYTHON_VERSION }}-n${{ env.NODE_VERSION }}-${{ env.SHORT_SHA }}
-  #   steps:
-  #     - run: python --version
-  #     - run: node --version
-  #     - uses: actions/checkout@v4
-  #     # - name: Run application-specific GitHub Action test, e.g. a semantic-release dry-run
+  test-action:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.build-and-push.outputs.image_uri }}
+    steps:
+      - run: python --version
+      - run: node --version
+      - uses: actions/checkout@v4
+      # - name: Run application-specific GitHub Action test, e.g. a semantic-release dry-run
 
   # tag-as-latest:
   #   needs: test-action
