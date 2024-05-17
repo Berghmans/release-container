@@ -31,14 +31,14 @@ jobs:
           build-args: |
             PYTHON_VERSION=${{ env.PYTHON_VERSION }}
             NODE_VERSION=${{ env.NODE_VERSION }}
-      - run: docker run --rm ${{ env.TEST_TAG }} python --version
-      - run: docker run --rm ${{ env.TEST_TAG }} node --version
-      - run: docker run --rm ${{ env.TEST_TAG }} semantic-release --version
-      - run: docker run --rm ${{ env.TEST_TAG }} invoke --version
-      - run: docker run --rm ${{ env.TEST_TAG }} cfn-lint --version
-      - run: docker run --rm ${{ env.TEST_TAG }} pylint --version
+      - run: docker run --rm ${{ env.TEST_TAG }} "python --version"
+      - run: docker run --rm ${{ env.TEST_TAG }} "node --version"
+      - run: docker run --rm ${{ env.TEST_TAG }} "semantic-release --version"
+      - run: docker run --rm ${{ env.TEST_TAG }} "invoke --version"
+      - run: docker run --rm ${{ env.TEST_TAG }} "cfn-lint --version"
+      - run: docker run --rm ${{ env.TEST_TAG }} "pylint --version"
       - name: boto3 version
-        run: docker run --rm ${{ env.TEST_TAG }} python -c 'import boto3; print(boto3.__version__)'
+        run: docker run --rm ${{ env.TEST_TAG }} "python -c 'import boto3; print(boto3.__version__)'"
       - uses: actions/checkout@v4
       # - name: Run application-specific GitHub Action test, e.g. a semantic-release dry-run
       - name: Gather output
