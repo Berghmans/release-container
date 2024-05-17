@@ -44,9 +44,9 @@ jobs:
       - name: Gather output
         id: set-output
         run: |
-          PYTHON_VERSION=$(docker run --rm ${{ env.TEST_TAG }} python --version 2>&1 | awk '{print $2}')
+          PYTHON_VERSION=$(docker run --rm ${{ env.TEST_TAG }} "python --version" 2>&1 | awk '{print $2}')
           echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
-          NODE_VERSION=$(docker run --rm ${{ env.TEST_TAG }} node --version 2>&1 | awk -F 'v' '{print $2}')
+          NODE_VERSION=$(docker run --rm ${{ env.TEST_TAG }} "node --version" 2>&1 | awk -F 'v' '{print $2}')
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
     outputs:
       python_version: ${{ steps.set-output.outputs.python_version }}
