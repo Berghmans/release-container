@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION
-FROM python:${PYTHON_VERSION}-bullseye
+FROM python:${PYTHON_VERSION}-bookworm
 
 ARG NODE_VERSION
 
