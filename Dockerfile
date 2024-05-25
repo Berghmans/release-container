@@ -22,4 +22,6 @@ RUN pipenv install --deploy --system
 COPY package.json .
 RUN npm install -g $(cat package.json | jq -r '.dependencies | keys | join(" ")')
 
+WORKDIR /app
+
 ENTRYPOINT ["/bin/bash", "-c"]
