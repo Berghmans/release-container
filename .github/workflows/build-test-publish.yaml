@@ -1,11 +1,10 @@
-name: build-test
+name: build-test-publish
 
 on: # yamllint disable-line rule:truthy
-  push:
-    branches:
-      - "**"
-    tags-ignore:
-      - "v*"
+  workflow_run:
+    workflows: [berghmans-checks]
+    types: [completed]
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
@@ -16,6 +15,7 @@ env:
 
 jobs:
   test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -70,6 +70,7 @@ jobs:
       node_version: ${{ steps.set-output.outputs.node_version }}
 
   push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     needs: test
     runs-on: ubuntu-latest
     permissions:
@@ -108,6 +109,10 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,enable=true,prefix=py${{ steps.extract-versions.outputs.python_version }}-node${{ steps.extract-versions.outputs.node_version }}-,suffix=,format=short
+            type=raw,value=py${{ steps.extract-versions.outputs.python_version }}-node${{ steps.extract-versions.outputs.node_version }}
+            type=raw,value=py${{ steps.extract-versions.outputs.python_major_minor }}-node${{ steps.extract-versions.outputs.node_major_minor }}
+            type=raw,value=py${{ steps.extract-versions.outputs.python_version }}
+            type=raw,value=py${{ steps.extract-versions.outputs.python_major_minor }}
           labels: |
             version.python=${{ steps.extract-versions.outputs.python_version }}
             version.nodejs=${{ steps.extract-versions.outputs.node_version }}
@@ -140,6 +145,7 @@ jobs:
       image_uri: ${{ steps.set-output.outputs.image_uri }}
 
   test-action:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     needs: push
     runs-on: ubuntu-latest
     container:
@@ -157,9 +163,7 @@ jobs:
       - name: boto3 version
         run: python -c "import boto3; print(boto3.__version__)"
       - uses: actions/checkout@v4
-      - run: ls -alh
       - run: chown -R $(whoami) .
-      - run: ls -alh
       - run: semantic-release --dry-run --branches ${{ github.ref_name }}
         env:
           GIT_AUTHOR_NAME: berghmans-bot
