@@ -1,9 +1,11 @@
 name: build-test
 
-on:
-  workflow_run:
-    workflows: [berghmans-checks]
-    types: [completed]
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "v*"
 
 env:
   REGISTRY: ghcr.io
