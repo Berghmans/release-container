@@ -144,6 +144,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.push.outputs.image_uri }}
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - run: python --version
       - run: node --version
