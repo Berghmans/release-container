@@ -1,0 +1,27 @@
+---
+branches: ["main"]
+plugins:
+  - - "@semantic-release/commit-analyzer"
+    - releaseRules:
+        # Patch
+        - type: "patch"
+          release: "patch"
+        - type: "fix"
+          release: "patch"
+        # Minor
+        - type: "minor"
+          release: "minor"
+        - type: "feat"
+          release: "minor"
+        # Major
+        - type: "major"
+          release: "major"
+        - type: "breaking"
+          release: "major"
+  - "@semantic-release/release-notes-generator"
+  - - "@semantic-release/changelog"
+    - changelogFile: CHANGELOG.md
+  - - "@semantic-release/git"
+    - assets:
+        - CHANGELOG.md
+      message: "chore(release): ${nextRelease.version}"

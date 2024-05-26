@@ -19,9 +19,10 @@ COPY Pipfile Pipfile.lock .
 RUN pipenv install --deploy --system
 
 # Install necessary Node.js packages
-COPY package.json .
+COPY package.json package-lock.json .
 RUN npm install -g $(cat package.json | jq -r '.dependencies | keys | join(" ")')
 
+# Set the working directory to a clean directory
 WORKDIR /app
 
 ENTRYPOINT ["/bin/bash", "-c"]
