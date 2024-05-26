@@ -154,6 +154,9 @@ jobs:
       - name: boto3 version
         run: python -c "import boto3; print(boto3.__version__)"
       - uses: actions/checkout@v4
+      - run: ls -alh
+      - run: chown -R $(whoami) .
+      - run: ls -alh
       - run: semantic-release --dry-run
         env:
           GIT_AUTHOR_NAME: berghmans-bot
