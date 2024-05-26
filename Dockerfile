@@ -5,12 +5,12 @@ ARG NODE_VERSION
 
 # Install Node.js version 20
 RUN echo "https://deb.nodesource.com/setup_${NODE_VERSION}" && \
-    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - && \
-    apt-get install -y nodejs
+    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash -
 
-# Install jq for JSON processing and clean up
+# Install apt packages
+COPY packages.list .
 RUN apt-get update && \
-    apt-get install -y jq awscli zip && \
+    xargs -a packages.list apt-get install -y && \
     rm -rf /var/lib/apt/lists/*
 
 # Install pipenv
