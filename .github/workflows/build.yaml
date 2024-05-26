@@ -157,7 +157,7 @@ jobs:
       - run: ls -alh
       - run: chown -R $(whoami) .
       - run: ls -alh
-      - run: semantic-release --dry-run
+      - run: semantic-release --dry-run --branch ${{ github.ref_name }}
         env:
           GIT_AUTHOR_NAME: berghmans-bot
           GIT_AUTHOR_EMAIL: berghmans-bot@no-reply.com
