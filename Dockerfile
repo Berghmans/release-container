@@ -9,7 +9,9 @@ RUN echo "https://deb.nodesource.com/setup_${NODE_VERSION}" && \
     apt-get install -y nodejs
 
 # Install jq for JSON processing and clean up
-RUN apt-get update && apt-get install -y jq awscli && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y jq awscli zip && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install pipenv
 RUN pip install --no-cache-dir pipenv
