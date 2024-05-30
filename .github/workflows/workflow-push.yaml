@@ -15,6 +15,14 @@ on:
         description: "The name of the image to push"
         required: true
         type: string
+      python_version:
+        description: "The Python version to use for building the image"
+        required: true
+        type: string
+      node_version:
+        description: "The Node.js version to use for building the image"
+        required: true
+        type: string
       publish:
         type: boolean
         description: "Whether to publish the image"
@@ -69,6 +77,9 @@ jobs:
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PYTHON_VERSION=${{ inputs.python_version }}
+            NODE_VERSION=${{ inputs.node_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
         env:
