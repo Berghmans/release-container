@@ -44,6 +44,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:22.04
+      volumes:
+        - /run/docker/docker.sock:/run/docker/docker.sock
+      env:
+        DOCKER_HOST: unix:///run/docker/docker.sock
     steps:
       - uses: actions/checkout@v4
         with:
