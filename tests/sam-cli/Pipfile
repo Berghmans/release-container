@@ -3,10 +3,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[packages]
-cfn-lint = "*"
-pylint = "*"
-boto3 = "*"
+[dev-packages]
+aws-sam-cli = "*"
 invoke = "*"
 
 [requires]

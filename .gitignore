@@ -1,1 +1,3 @@
 node_modules
+tests/sam-cli/out
+tests/sam-cli/build.toml
