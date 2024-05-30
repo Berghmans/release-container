@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ${{ github.repository }}/release-container:${{ matrix.os }}-${{ github.sha }}
+      image: ${{ github.repository }}/release-container:${{ matrix.python_version }}-${{ github.sha }}
 
   test-sam-cli:
     needs: push
@@ -58,7 +58,7 @@ jobs:
       fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ${{ github.repository }}/release-container:${{ matrix.os }}-${{ github.sha }}
+      image: ${{ github.repository }}/release-container:${{ matrix.python_version }}-${{ github.sha }}
 
   test-release:
     needs: push
@@ -76,4 +76,4 @@ jobs:
       fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ${{ github.repository }}/release-container:${{ matrix.os }}-${{ github.sha }}
+      image: ${{ github.repository }}/release-container:${{ matrix.python_version }}-${{ github.sha }}
