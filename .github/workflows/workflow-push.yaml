@@ -77,14 +77,14 @@ jobs:
         with:
           images: ghcr.io/${{ inputs.image_name }}
           tags: |
-            type=schedule,pattern={{date 'YYYYMMDD'}}-py${{ steps.versions.outputs.python_major_minor }}
-            type=ref,event=branch,prefix=py${{ steps.versions.outputs.python_major_minor }}
-            type=ref,event=pr,prefix=py${{ steps.versions.outputs.python_major_minor }}
-            type=semver,pattern={{version}}-py${{ steps.versions.outputs.python_major_minor }}
-            type=semver,pattern={{major}}.{{minor}}-py${{ steps.versions.outputs.python_major_minor }}
-            type=semver,pattern={{major}}-py${{ steps.versions.outputs.python_major_minor }}
-            type=sha,prefix=py${{ steps.versions.outputs.python_major_minor }}
-            type=raw,value=latest,enable=${{ inputs.ref == 'refs/heads/main' || startsWith(inputs.ref, 'refs/tags/') }}
+            type=schedule,pattern=py${{ steps.versions.outputs.python_major_minor }}-{{date 'YYYYMMDD'}}
+            type=ref,event=branch,prefix=py${{ steps.versions.outputs.python_major_minor }}-
+            type=ref,event=pr,prefix=py${{ steps.versions.outputs.python_major_minor }}-
+            type=semver,pattern=py${{ steps.versions.outputs.python_major_minor }}-{{version}}
+            type=semver,pattern=py${{ steps.versions.outputs.python_major_minor }}-{{major}}.{{minor}}
+            type=semver,pattern=py${{ steps.versions.outputs.python_major_minor }}-{{major}}
+            type=sha,prefix=py${{ steps.versions.outputs.python_major_minor }}-
+            type=raw,value=latest,enable=${{ (inputs.ref == 'refs/heads/main' || startsWith(inputs.ref, 'refs/tags/')) && steps.versions.outputs.python_major_minor == 'py3.12' }}
             type=raw,value=py${{ steps.versions.outputs.python_major_minor }},enable=${{ inputs.ref == 'refs/heads/main' || startsWith(inputs.ref, 'refs/tags/') }}
           flavor: |
             latest=false
