@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION
-FROM python:${PYTHON_VERSION}-bookworm
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 ARG NODE_VERSION
 
