@@ -11,6 +11,10 @@ on:
         description: "The Docker image to use for the test"
         required: true
         type: string
+      python-version:
+        description: "The Python version to use for the test"
+        required: true
+        type: string
 
 jobs:
   run-with-dind:
@@ -21,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
-      - run: invoke build
+      - run: invoke build -r ${{ inputs.python-version}}
         working-directory: tests/sam-cli
 
   run-without-dind:
@@ -32,5 +36,5 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
-      - run: invoke build-without-dind
+      - run: invoke build-without-dind -r ${{ inputs.python-version}}
         working-directory: tests/sam-cli

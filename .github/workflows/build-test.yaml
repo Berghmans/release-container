@@ -59,6 +59,7 @@ jobs:
     with:
       ref: ${{ github.ref }}
       image: ghcr.io/berghmans/release-container/release-container:py${{ matrix.python_version }}-${{ github.sha }}
+      python-version: ${{ matrix.python_version }}
 
   test-release:
     needs: push
