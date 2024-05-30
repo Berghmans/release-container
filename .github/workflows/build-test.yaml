@@ -136,7 +136,7 @@ jobs:
     outputs:
       image_uri: ${{ steps.set-output.outputs.image_uri }}
 
-  test-action:
+  test-versions:
     needs: push
     uses: ./.github/workflows/workflow-test-versions.yaml
     with:
@@ -146,6 +146,16 @@ jobs:
   test-sam-cli:
     needs: push
     uses: ./.github/workflows/workflow-test-sam-cli.yaml
+    with:
+      ref: ${{ github.ref }}
+      image: ${{ needs.push.outputs.image_uri }}
+
+  test-release:
+    needs: push
+    uses: ./.github/workflows/workflow-test-release.yaml
+    permissions:
+      id-token: write
+      contents: write
     with:
       ref: ${{ github.ref }}
       image: ${{ needs.push.outputs.image_uri }}
