@@ -51,7 +51,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install invoke
+      - run: python -m pip install invoke
         shell: bash
       - uses: aws-actions/setup-sam@v2
         with:
