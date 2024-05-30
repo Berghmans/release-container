@@ -52,6 +52,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install invoke
+        shell: bash
       - uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
