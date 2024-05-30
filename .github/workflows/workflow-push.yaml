@@ -83,7 +83,7 @@ jobs:
             type=semver,pattern=py${{ steps.versions.outputs.python_major_minor }}-{{version}}
             type=semver,pattern=py${{ steps.versions.outputs.python_major_minor }}-{{major}}.{{minor}}
             type=semver,pattern=py${{ steps.versions.outputs.python_major_minor }}-{{major}}
-            type=sha,prefix=py${{ steps.versions.outputs.python_major_minor }}-
+            type=sha,format=long,prefix=py${{ steps.versions.outputs.python_major_minor }}-
             type=raw,value=latest,enable=${{ (inputs.ref == 'refs/heads/main' || startsWith(inputs.ref, 'refs/tags/')) && steps.versions.outputs.python_major_minor == 'py3.12' }}
             type=raw,value=py${{ steps.versions.outputs.python_major_minor }},enable=${{ inputs.ref == 'refs/heads/main' || startsWith(inputs.ref, 'refs/tags/') }}
           flavor: |

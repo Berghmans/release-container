@@ -14,27 +14,51 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        python_version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+      fail-fast: false
     with:
       ref: ${{ github.ref }}
       sha: ${{ github.sha }}
       image_name: ${{ github.repository }}/release-container
-      python_version: "3.12"
+      python_version: ${{ matrix.os }}
       node_version: "20.x"
       publish: true
 
   test-versions:
     needs: push
     uses: ./.github/workflows/workflow-test-versions.yaml
+    strategy:
+      matrix:
+        python_version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+      fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ${{ needs.push.outputs.image_uri }}
+      image: ${{ github.repository }}/release-container:${{ matrix.os }}-${{ github.sha }}
 
   test-sam-cli:
     needs: push
     uses: ./.github/workflows/workflow-test-sam-cli.yaml
+    strategy:
+      matrix:
+        python_version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+      fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ${{ needs.push.outputs.image_uri }}
+      image: ${{ github.repository }}/release-container:${{ matrix.os }}-${{ github.sha }}
 
   test-release:
     needs: push
@@ -42,6 +66,14 @@ jobs:
     permissions:
       id-token: write
       contents: write
+    strategy:
+      matrix:
+        python_version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+      fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ${{ needs.push.outputs.image_uri }}
+      image: ${{ github.repository }}/release-container:${{ matrix.os }}-${{ github.sha }}
