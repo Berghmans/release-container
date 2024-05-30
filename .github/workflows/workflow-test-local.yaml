@@ -19,6 +19,13 @@ on:
         description: "The Node.js version to use for building the image"
         required: true
         type: string
+    outputs:
+      python_version:
+        description: "The exact Python version used in the image"
+        value: ${{ jobs.run.outputs.python_version }}
+      node_version:
+        description: "The exact Node.js version used in the image"
+        value: ${{ jobs.run.outputs.node_version }}
 
 env:
   TEST_TAG: "release-container:test"

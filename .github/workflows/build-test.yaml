@@ -14,7 +14,7 @@ env:
   NODE_VERSION: "20.x"
 
 jobs:
-  test:
+  test-local:
     uses: ./.github/workflows/workflow-test-local.yaml
     permissions:
       contents: read
@@ -25,7 +25,7 @@ jobs:
       node_version: "20.x"
 
   push:
-    needs: test
+    needs: test-local
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -51,11 +51,11 @@ jobs:
           echo "TIMESTAMP=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
       - id: extract-versions
         run: |
-          PYTHON_MAJOR_MINOR=$(echo ${{ needs.test.outputs.python_version }} | awk -F. '{print $1"."$2}')
-          NODE_MAJOR_MINOR=$(echo ${{ needs.test.outputs.node_version }} | awk -F. '{print $1"."$2}')
-          echo "python_version=${{ needs.test.outputs.python_version }}" >> $GITHUB_OUTPUT
+          PYTHON_MAJOR_MINOR=$(echo ${{ needs.test-local.outputs.python_version }} | awk -F. '{print $1"."$2}')
+          NODE_MAJOR_MINOR=$(echo ${{ needs.test-local.outputs.node_version }} | awk -F. '{print $1"."$2}')
+          echo "python_version=${{ needs.test-local.outputs.python_version }}" >> $GITHUB_OUTPUT
           echo "python_major_minor=$PYTHON_MAJOR_MINOR" >> $GITHUB_OUTPUT
-          echo "node_version=${{ needs.test.outputs.node_version }}" >> $GITHUB_OUTPUT
+          echo "node_version=${{ needs.test-local.outputs.node_version }}" >> $GITHUB_OUTPUT
           echo "node_major_minor=$NODE_MAJOR_MINOR" >> $GITHUB_OUTPUT
       - id: meta-sha-only
         uses: docker/metadata-action@v5
