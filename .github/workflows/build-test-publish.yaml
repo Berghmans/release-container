@@ -198,7 +198,7 @@ jobs:
 
   test-sam-cli:
     needs: push
-    uses: ./.github/workflows/test-sam-cli.yml
+    uses: ./.github/workflows/test-sam-cli.yaml
     with:
       ref: ${{ github.ref }}
       image: ${{ needs.push.outputs.image_uri }}
