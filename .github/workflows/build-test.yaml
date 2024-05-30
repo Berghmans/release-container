@@ -132,7 +132,7 @@ jobs:
       - name: Gather output
         id: set-output
         run: |
-          echo "image_uri=${{ fromJSON(steps.meta.outputs.json).tags[0] }}" >> "$GITHUB_OUTPUT"
+          echo "image_uri=${{ fromJSON(steps.meta-sha-only.outputs.json).tags[0] }}" >> "$GITHUB_OUTPUT"
     outputs:
       image_uri: ${{ steps.set-output.outputs.image_uri }}
 
