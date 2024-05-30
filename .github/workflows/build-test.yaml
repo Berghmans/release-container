@@ -1,4 +1,4 @@
-name: build-test-publish
+name: build-test
 
 on: # yamllint disable-line rule:truthy
   push:
@@ -16,7 +16,6 @@ env:
 
 jobs:
   test:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -71,7 +70,6 @@ jobs:
       node_version: ${{ steps.set-output.outputs.node_version }}
 
   push:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     needs: test
     runs-on: ubuntu-latest
     permissions:
