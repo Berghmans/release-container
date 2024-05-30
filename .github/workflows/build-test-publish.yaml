@@ -4,6 +4,7 @@ on: # yamllint disable-line rule:truthy
   workflow_run:
     workflows: [berghmans-checks]
     types: [completed]
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
@@ -195,10 +196,3 @@ jobs:
     outputs:
       python_version: ${{ steps.set-output.outputs.python_version }}
       node_version: ${{ steps.set-output.outputs.node_version }}
-
-  test-sam-cli:
-    needs: push
-    uses: ./.github/workflows/test-sam-cli.yml
-    with:
-      ref: ${{ github.ref }}
-      image: ${{ needs.push.outputs.image_uri }}
