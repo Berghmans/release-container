@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: Example template for SAM CLI tests
+
+Resources:
+  # IAM
+  exampleLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  exampleLambdaPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Path: /
+      Roles:
+        - !Ref exampleLambdaRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Resource: !GetAtt exampleLambdaLoggroup.Arn
+            Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+
+  # Lambda
+  exampleLambdaLoggroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-example"
+      RetentionInDays: 30
+
+  exampleLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-example
+      CodeUri: app/some_function
+      Handler: index.handler
+      Runtime: python3.12
+      Timeout: 30
+      MemorySize: 128
+      Role: !GetAtt exampleLambdaRole.Arn
+      Tags:
+        Application: !Ref AWS::StackName
