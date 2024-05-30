@@ -12,62 +12,17 @@ env:
   IMAGE_NAME: ${{ github.repository }}/release-container
   PYTHON_VERSION: "3.12.3"
   NODE_VERSION: "20.x"
-  TEST_TAG: "release-container:test"
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/workflow-test-local.yaml
     permissions:
       contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-      - uses: docker/build-push-action@v5
-        with:
-          context: .
-          load: true
-          platforms: linux/amd64
-          tags: ${{ env.TEST_TAG }}
-          build-args: |
-            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
-            NODE_VERSION=${{ env.NODE_VERSION }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-        env:
-          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
-      - # Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-        name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - run: docker run --rm ${{ env.TEST_TAG }} "python --version"
-      - run: docker run --rm ${{ env.TEST_TAG }} "node --version"
-      - run: docker run --rm ${{ env.TEST_TAG }} "semantic-release --version"
-      - run: docker run --rm ${{ env.TEST_TAG }} "invoke --version"
-      - run: docker run --rm ${{ env.TEST_TAG }} "cfn-lint --version"
-      - run: docker run --rm ${{ env.TEST_TAG }} "pylint --version"
-      - name: boto3 version
-        run: docker run --rm ${{ env.TEST_TAG }} "python -c 'import boto3; print(boto3.__version__)'"
-      - uses: actions/checkout@v4
-      # - name: Run application-specific GitHub Action test, e.g. a semantic-release dry-run
-      - name: Gather output
-        id: set-output
-        run: |
-          PYTHON_VERSION=$(docker run --rm ${{ env.TEST_TAG }} "python --version" 2>&1 | awk '{print $2}')
-          echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
-          NODE_VERSION=$(docker run --rm ${{ env.TEST_TAG }} "node --version" 2>&1 | awk -F 'v' '{print $2}')
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
-    outputs:
-      python_version: ${{ steps.set-output.outputs.python_version }}
-      node_version: ${{ steps.set-output.outputs.node_version }}
+    with:
+      ref: ${{ github.ref }}
+      sha: ${{ github.sha }}
+      python_version: ${{ env.PYTHON_VERSION }}
+      node_version: ${{ env.NODE_VERSION }}
 
   push:
     needs: test
