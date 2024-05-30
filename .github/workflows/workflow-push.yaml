@@ -89,7 +89,6 @@ jobs:
           flavor: |
             latest=false
       - run: |
-          echo "IMAGE_NAME=$(echo ${{ inputs.image_name }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           echo "TIMESTAMP=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
       - uses: docker/login-action@v3
         if: ${{ inputs.publish }}
