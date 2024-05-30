@@ -16,12 +16,9 @@ RUN apt-get update && \
     xargs -a packages.list apt-get install -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Install pipenv
-RUN pip install --no-cache-dir pipenv
-
 # Install necessary Python packages
-COPY Pipfile Pipfile.lock .
-RUN pipenv install --deploy --system
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # Install necessary Node.js packages
 COPY package.json package-lock.json .
