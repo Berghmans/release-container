@@ -7,12 +7,6 @@ on: # yamllint disable-line rule:truthy
     tags-ignore:
       - "v*"
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/release-container
-  PYTHON_VERSION: "3.12.3"
-  NODE_VERSION: "20.x"
-
 jobs:
   test-local:
     uses: ./.github/workflows/workflow-test-local.yaml
@@ -26,70 +20,15 @@ jobs:
 
   push:
     needs: test-local
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/workflow-push.yaml
     permissions:
       contents: read
       packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Update environment variables
-        id: vars
-        run: |
-          echo "IMAGE_NAME=$(echo ${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-          echo "TIMESTAMP=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
-      - id: extract-versions
-        run: |
-          PYTHON_MAJOR_MINOR=$(echo ${{ needs.test-local.outputs.python_version }} | awk -F. '{print $1"."$2}')
-          NODE_MAJOR_MINOR=$(echo ${{ needs.test-local.outputs.node_version }} | awk -F. '{print $1"."$2}')
-          echo "python_version=${{ needs.test-local.outputs.python_version }}" >> $GITHUB_OUTPUT
-          echo "python_major_minor=$PYTHON_MAJOR_MINOR" >> $GITHUB_OUTPUT
-          echo "node_version=${{ needs.test-local.outputs.node_version }}" >> $GITHUB_OUTPUT
-          echo "node_major_minor=$NODE_MAJOR_MINOR" >> $GITHUB_OUTPUT
-      - id: meta-sha-only
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,enable=true,prefix=py${{ steps.extract-versions.outputs.python_version }}-node${{ steps.extract-versions.outputs.node_version }}-,suffix=,format=short
-      - uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          platforms: linux/amd64
-          tags: ${{ steps.meta-sha-only.outputs.tags }}
-          labels: ${{ steps.meta-sha-only.outputs.labels }}
-          build-args: |
-            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
-            NODE_VERSION=${{ env.NODE_VERSION }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-        env:
-          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
-      - # Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-        name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - name: Gather output
-        id: set-output
-        run: |
-          echo "image_uri=${{ fromJSON(steps.meta-sha-only.outputs.json).tags[0] }}" >> "$GITHUB_OUTPUT"
-    outputs:
-      image_uri: ${{ steps.set-output.outputs.image_uri }}
+    with:
+      ref: ${{ github.ref }}
+      sha: ${{ github.sha }}
+      image_name: ${{ github.repository }}/release-container
+      publish: true
 
   test-versions:
     needs: push
