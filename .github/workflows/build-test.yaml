@@ -10,7 +10,6 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
   push:
-    needs: test-local
     uses: ./.github/workflows/workflow-push.yaml
     permissions:
       contents: read
