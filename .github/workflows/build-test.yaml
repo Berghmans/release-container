@@ -29,6 +29,13 @@ jobs:
       ref: ${{ github.ref }}
       image: ${{ needs.push.outputs.image_uri }}
 
+  test-sam-cli:
+    needs: push
+    uses: ./.github/workflows/workflow-test-sam-cli.yaml
+    with:
+      ref: ${{ github.ref }}
+      image: ${{ needs.push.outputs.image_uri }}
+
   test-release:
     needs: push
     uses: ./.github/workflows/workflow-test-release.yaml

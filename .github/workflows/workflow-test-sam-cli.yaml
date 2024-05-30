@@ -1,0 +1,36 @@
+name: test-sam-cli
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: "The git ref to test"
+        required: true
+        type: string
+      image:
+        description: "The Docker image to use for the test"
+        required: true
+        type: string
+
+jobs:
+  run-with-dind:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - run: invoke build
+        working-directory: tests/sam-cli
+
+  run-without-dind:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - run: invoke build-without-dind
+        working-directory: tests/sam-cli

@@ -8,8 +8,7 @@ cfn-lint = "*"
 pylint = "*"
 boto3 = "*"
 invoke = "*"
-
-[dev-packages]
+aws-sam-cli = "*"
 
 [requires]
 python_version = "3.12"
