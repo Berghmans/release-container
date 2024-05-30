@@ -1,4 +1,4 @@
-name: test-versions
+name: test-release
 
 on:
   workflow_call:
