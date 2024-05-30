@@ -6,18 +6,9 @@ on: # yamllint disable-line rule:truthy
       - "**"
     tags-ignore:
       - "v*"
+  pull_request:
 
 jobs:
-  test-local:
-    uses: ./.github/workflows/workflow-test-local.yaml
-    permissions:
-      contents: read
-    with:
-      ref: ${{ github.ref }}
-      sha: ${{ github.sha }}
-      python_version: "3.12.3"
-      node_version: "20.x"
-
   push:
     needs: test-local
     uses: ./.github/workflows/workflow-push.yaml
