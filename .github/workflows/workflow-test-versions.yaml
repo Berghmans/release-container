@@ -1,0 +1,45 @@
+name: test-versions
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: "The git ref to test"
+        required: true
+        type: string
+      image:
+        description: "The Docker image to use for the test"
+        required: true
+        type: string
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.image }}
+    steps:
+      - run: python --version
+      - run: node --version
+      - run: semantic-release --version
+      - run: invoke --version
+      - run: cfn-lint --version
+      - run: pylint --version
+      - name: boto3 version
+        run: python -c "import boto3; print(boto3.__version__)"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - run: chown -R $(whoami) .
+      - run: semantic-release --dry-run --branches ${{ github.ref_name }}
+        env:
+          GIT_AUTHOR_NAME: berghmans-bot
+          GIT_AUTHOR_EMAIL: berghmans-bot@no-reply.com
+          GIT_COMMITTER_NAME: berghmans-bot
+          GIT_COMMITTER_EMAIL: berghmans-bot@no-reply.com
+      - name: Gather output
+        id: set-output
+        run: |
+          PYTHON_VERSION=$(python --version 2>&1 | awk '{print $2}')
+          echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          NODE_VERSION=$(node --version 2>&1 | awk -F 'v' '{print $2}')
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
