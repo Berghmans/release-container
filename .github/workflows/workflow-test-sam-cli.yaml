@@ -23,5 +23,5 @@ jobs:
           ref: ${{ inputs.ref }}
       - run: pipenv sync --dev
         working-directory: tests/sam-cli
-      - run: pipenv run sam build --config-file samconfig.toml
+      - run: pipenv run invoke build
         working-directory: tests/sam-cli
