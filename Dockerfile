@@ -3,6 +3,9 @@ FROM python:${PYTHON_VERSION}-slim-bookworm
 
 ARG NODE_VERSION
 
+RUN apt-get update && \
+    apt-get install -y curl
+
 # Install Node.js version 20
 RUN echo "https://deb.nodesource.com/setup_${NODE_VERSION}" && \
     curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash -
