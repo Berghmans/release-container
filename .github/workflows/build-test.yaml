@@ -21,8 +21,8 @@ jobs:
     with:
       ref: ${{ github.ref }}
       sha: ${{ github.sha }}
-      python_version: ${{ env.PYTHON_VERSION }}
-      node_version: ${{ env.NODE_VERSION }}
+      python_version: "3.12.3"
+      node_version: "20.x"
 
   push:
     needs: test
