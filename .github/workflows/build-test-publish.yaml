@@ -4,7 +4,6 @@ on: # yamllint disable-line rule:truthy
   workflow_run:
     workflows: [berghmans-checks]
     types: [completed]
-    branches: [main]
 
 env:
   REGISTRY: ghcr.io
@@ -21,6 +20,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
       - uses: docker/setup-buildx-action@v3
       - uses: actions/cache@v4
         with:
@@ -57,6 +58,8 @@ jobs:
       - name: boto3 version
         run: docker run --rm ${{ env.TEST_TAG }} "python -c 'import boto3; print(boto3.__version__)'"
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
       # - name: Run application-specific GitHub Action test, e.g. a semantic-release dry-run
       - name: Gather output
         id: set-output
@@ -78,6 +81,8 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
       - uses: docker/setup-buildx-action@v3
       - uses: actions/cache@v4
         with:
@@ -104,6 +109,7 @@ jobs:
           echo "node_version=${{ needs.test.outputs.node_version }}" >> $GITHUB_OUTPUT
           echo "node_major_minor=$NODE_MAJOR_MINOR" >> $GITHUB_OUTPUT
       - id: meta
+        if: ${{ github.event.workflow_run.head_branch }} == 'main'
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
@@ -116,6 +122,13 @@ jobs:
           labels: |
             version.python=${{ steps.extract-versions.outputs.python_version }}
             version.nodejs=${{ steps.extract-versions.outputs.node_version }}
+      - id: meta-sha-only
+        if: ${{ github.event.workflow_run.head_branch }} != 'main'
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,enable=true,prefix=py${{ steps.extract-versions.outputs.python_version }}-node${{ steps.extract-versions.outputs.node_version }}-,suffix=,format=short
       - uses: docker/build-push-action@v5
         with:
           context: .
@@ -163,6 +176,8 @@ jobs:
       - name: boto3 version
         run: python -c "import boto3; print(boto3.__version__)"
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
       - run: chown -R $(whoami) .
       - run: semantic-release --dry-run --branches ${{ github.ref_name }}
         env:
@@ -180,3 +195,10 @@ jobs:
     outputs:
       python_version: ${{ steps.set-output.outputs.python_version }}
       node_version: ${{ steps.set-output.outputs.node_version }}
+
+  test-sam-cli:
+    needs: push
+    uses: ./.github/workflows/test-sam-cli.yml
+    with:
+      ref: ${{ github.ref }}
+      image: ${{ needs.push.outputs.image_uri }}
