@@ -1,0 +1,40 @@
+name: build-test
+
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "v*"
+  pull_request:
+
+jobs:
+  push:
+    uses: ./.github/workflows/workflow-push.yaml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      ref: ${{ github.ref }}
+      sha: ${{ github.sha }}
+      image_name: ${{ github.repository }}/release-container
+      python_version: "3.12.3"
+      node_version: "20.x"
+      publish: true
+
+  test-versions:
+    needs: push
+    uses: ./.github/workflows/workflow-test-versions.yaml
+    with:
+      ref: ${{ github.ref }}
+      image: ${{ needs.push.outputs.image_uri }}
+
+  test-release:
+    needs: push
+    uses: ./.github/workflows/workflow-test-release.yaml
+    permissions:
+      id-token: write
+      contents: write
+    with:
+      ref: ${{ github.ref }}
+      image: ${{ needs.push.outputs.image_uri }}
