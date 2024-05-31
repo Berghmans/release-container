@@ -3,3 +3,4 @@ pylint
 boto3
 invoke
 aws-sam-cli
+pipenv
