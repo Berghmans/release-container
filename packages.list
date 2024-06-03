@@ -1,5 +1,7 @@
-nodejs
-jq
 awscli
-zip
+docker-buildx-plugin
+docker-ce-cli
 git-all
+jq
+nodejs
+zip

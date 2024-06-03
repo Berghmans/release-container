@@ -27,3 +27,5 @@ jobs:
       - name: boto3 version
         run: python -c "import boto3; print(boto3.__version__)"
       - run: sam --version
+      - run: poetry --version
+      - run: docker --version
