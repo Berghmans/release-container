@@ -25,7 +25,7 @@ jobs:
     with:
       ref: ${{ github.ref }}
       sha: ${{ github.sha }}
-      image_name: berghmans/release-container/release-container
+      image_name: berghmans/release-container
       python_version: ${{ matrix.python_version }}
       node_version: "20.x"
       publish: true
@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ghcr.io/berghmans/release-container/release-container:py${{ matrix.python_version }}-${{ github.sha }}
+      image: ghcr.io/berghmans/release-container:py${{ matrix.python_version }}-${{ github.sha }}
 
   test-sam-cli:
     needs: push
@@ -58,7 +58,7 @@ jobs:
       fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ghcr.io/berghmans/release-container/release-container:py${{ matrix.python_version }}-${{ github.sha }}
+      image: ghcr.io/berghmans/release-container:py${{ matrix.python_version }}-${{ github.sha }}
       python-version: ${{ matrix.python_version }}
 
   test-release:
@@ -77,4 +77,4 @@ jobs:
       fail-fast: false
     with:
       ref: ${{ github.ref }}
-      image: ghcr.io/berghmans/release-container/release-container:py${{ matrix.python_version }}-${{ github.sha }}
+      image: ghcr.io/berghmans/release-container:py${{ matrix.python_version }}-${{ github.sha }}
